@@ -20,10 +20,10 @@ I due punti vengono inseriti da soli mentre scrivi.
 Ogni orario deve stare fra 0:00 e 24:00. Il risultato invece può superare le 24 ore:
 `20:30 + 9` → 29:30 (05:30 del giorno dopo).
 
-- **Invio** calcola, **Esc** cancella il campo.
+- **Invio** calcola, **Esc** (o il tasto **Azzera**) svuota il campo e riporta il risultato a 0:00.
+- Ogni calcolo parte da zero: `+3` vale semplicemente 3:00.
 - Dopo il calcolo il testo resta selezionato: scrivi subito il prossimo.
-- Se inizi con `+` o `-` il calcolo parte dall'ultimo risultato (es. `- 45m`).
-- Doppio clic su una riga dello storico la riprende come risultato da cui continuare.
+- Doppio clic su una riga dello storico rimette quel calcolo nel campo (es. `18:00 + 3:00`).
 - Lo storico è salvato in `%APPDATA%\CalcolatriceOre\storico.txt`.
 
 ## Sviluppo

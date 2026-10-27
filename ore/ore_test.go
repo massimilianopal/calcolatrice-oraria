@@ -40,20 +40,20 @@ func TestInterpreta(t *testing.T) {
 		"  7,30  +  0,30 ": "8:00",
 	}
 	for in, want := range casi {
-		r, err := Interpreta(in, nil)
+		r, err := Interpreta(in)
 		if err != nil || Formatta(r.Minuti) != want {
 			t.Errorf("Interpreta(%q) = %s, %v; voglio %s", in, Formatta(r.Minuti), err, want)
 		}
 	}
 	for _, in := range []string{"", "8 9", "8 +", "+", "8 ++"} {
-		if _, err := Interpreta(in, nil); err == nil {
+		if _, err := Interpreta(in); err == nil {
 			t.Errorf("Interpreta(%q) doveva dare errore", in)
 		}
 	}
-	prec := 1050
-	r, err := Interpreta("- 1", &prec)
-	if err != nil || r.Minuti != 990 || Descrivi(r) != "17:30 - 1:00" {
-		t.Errorf("continuazione: %d %v %q", r.Minuti, err, Descrivi(r))
+	// nessuna continuazione dal calcolo precedente: "+3" è solo 3:00
+	r, err := Interpreta("+3")
+	if err != nil || r.Minuti != 180 || Descrivi(r) != "3:00" {
+		t.Errorf("+3: %d %v %q", r.Minuti, err, Descrivi(r))
 	}
 }
 

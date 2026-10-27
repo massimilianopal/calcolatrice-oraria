@@ -22,18 +22,14 @@ type Risultato struct {
 }
 
 // Interpreta legge un'espressione come "1430 - 8,30 + 9" e calcola il totale.
-// Se l'espressione inizia con + o -, il calcolo parte da `precedente`
-// (se non nil), così si può continuare dall'ultimo risultato.
-func Interpreta(espr string, precedente *int) (Risultato, error) {
+// Ogni calcolo parte da zero: "+3" vale 3:00.
+func Interpreta(espr string) (Risultato, error) {
 	s := strings.TrimSpace(espr)
 	if s == "" {
 		return Risultato{}, errors.New("inserisci un orario")
 	}
 
 	var res Risultato
-	if (s[0] == '+' || s[0] == '-') && precedente != nil {
-		res.Termini = append(res.Termini, Termine{Segno: 1, Minuti: *precedente, Testo: Formatta(*precedente)})
-	}
 
 	segno := 1
 	attesoOperando := true

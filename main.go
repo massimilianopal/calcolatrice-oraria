@@ -32,14 +32,15 @@ type app struct {
 	lista     *walk.ListBox
 
 	storico     []voce
-	ultimo      *int
 	formattando bool
 }
 
 const aiuto = "Esempi:  8:30 + 9   ·   1430 - 830   ·   14,30 + 1.15\n" +
 	"9 = 9 ore   ·   :45 o 45m = 45 minuti   ·   ogni orario va da 0:00 a 24:00\n" +
-	"Inizia con + o - per continuare dall'ultimo risultato.\n" +
-	"Invio = calcola   ·   Esc = cancella   ·   doppio clic sullo storico = riusa"
+	"Invio = calcola   ·   Esc = azzera   ·   doppio clic sullo storico = riprendi il calcolo"
+
+// vuoto tiene occupata la riga di un'etichetta senza testo, così l'interfaccia non salta.
+const vuoto = "\u00a0"
 
 var (
 	grigio = walk.RGB(110, 110, 110)
@@ -71,19 +72,20 @@ func main() {
 						OnKeyDown:     a.tasto,
 						OnTextChanged: a.testoCambiato,
 					},
-					Label{AssignTo: &a.anteprima, Text: " ", TextColor: walk.RGB(110, 110, 110)},
+					Label{AssignTo: &a.anteprima, Text: vuoto, TextColor: walk.RGB(110, 110, 110)},
 					VSpacer{Size: 6},
 					Label{
 						AssignTo: &a.risultato,
 						Text:     "0:00",
 						Font:     Font{Family: "Segoe UI", PointSize: 32, Bold: true},
 					},
-					Label{AssignTo: &a.orologio, Text: " ", TextColor: walk.RGB(110, 110, 110)},
+					Label{AssignTo: &a.orologio, Text: vuoto, TextColor: walk.RGB(110, 110, 110)},
 					Composite{
 						Layout: HBox{MarginsZero: true},
 						Children: []Widget{
 							PushButton{Text: "Calcola (Invio)", OnClicked: a.calcola},
 							PushButton{Text: "Copia risultato", OnClicked: a.copia},
+							PushButton{Text: "Azzera (Esc)", OnClicked: a.azzera},
 							HSpacer{},
 						},
 					},
@@ -110,17 +112,21 @@ func main() {
 		walk.MsgBox(nil, "Errore", err.Error(), walk.MsgBoxIconError)
 		return
 	}
+	// Esc va registrato come scorciatoia: il ciclo dei messaggi lo intercetta
+	// prima che arrivi al campo di testo.
+	esc := walk.NewAction()
+	esc.SetShortcut(walk.Shortcut{Key: walk.KeyEscape})
+	esc.Triggered().Attach(a.azzera)
+	a.mw.ShortcutActions().Add(esc)
+
 	a.aggiornaLista()
 	a.input.SetFocus()
 	a.mw.Run()
 }
 
 func (a *app) tasto(k walk.Key) {
-	switch k {
-	case walk.KeyReturn:
+	if k == walk.KeyReturn {
 		a.calcola()
-	case walk.KeyEscape:
-		a.input.SetText("")
 	}
 }
 
@@ -143,10 +149,10 @@ func (a *app) testoCambiato() {
 func (a *app) aggiornaAnteprima() {
 	t := strings.TrimSpace(a.input.Text())
 	if t == "" {
-		a.mostraAnteprima(" ", false)
+		a.mostraAnteprima(vuoto, false)
 		return
 	}
-	r, err := ore.Interpreta(t, a.ultimo)
+	r, err := ore.Interpreta(t)
 	if err != nil {
 		var nv *ore.OraNonValida
 		switch {
@@ -154,7 +160,7 @@ func (a *app) aggiornaAnteprima() {
 			a.mostraAnteprima("⚠ Ora non valida: "+nv.Testo, true)
 		case strings.HasSuffix(t, "+") || strings.HasSuffix(t, "-"):
 			// sta ancora scrivendo il prossimo orario
-			a.mostraAnteprima(" ", false)
+			a.mostraAnteprima(vuoto, false)
 		default:
 			a.mostraAnteprima("⚠ "+err.Error(), true)
 		}
@@ -175,7 +181,7 @@ func (a *app) mostraAnteprima(testo string, errore bool) {
 }
 
 func (a *app) calcola() {
-	r, err := ore.Interpreta(a.input.Text(), a.ultimo)
+	r, err := ore.Interpreta(a.input.Text())
 	if err != nil {
 		var nv *ore.OraNonValida
 		if errors.As(err, &nv) {
@@ -210,21 +216,26 @@ func (a *app) copia() {
 
 func (a *app) mostraRisultato(minuti int) {
 	a.risultato.SetText(ore.Formatta(minuti))
-	a.orologio.SetText(ore.Orologio(minuti) + " ")
-	a.ultimo = &minuti
+	a.orologio.SetText(ore.Orologio(minuti) + vuoto)
 }
 
-// riusa riprende un risultato dallo storico: scrivendo + o - si continua da lì.
-// (Non va nel campo perché può superare le 24:00.)
+// azzera svuota il campo e riporta il risultato a 0:00.
+func (a *app) azzera() {
+	a.input.SetText("")
+	a.mostraRisultato(0)
+	a.input.SetFocus()
+}
+
+// riusa rimette nel campo il calcolo di una riga dello storico, es. "18:00 + 3:00".
 func (a *app) riusa() {
 	i := a.lista.CurrentIndex()
 	if i < 0 || i >= len(a.storico) {
 		return
 	}
-	a.mostraRisultato(a.storico[i].minuti)
-	a.input.SetText("")
-	a.mostraAnteprima("Scrivi + o - per continuare da "+ore.Formatta(a.storico[i].minuti), false)
+	espr, _, _ := strings.Cut(a.storico[i].testo, " = ")
+	a.input.SetText(espr)
 	a.input.SetFocus()
+	a.input.SetTextSelection(len(espr), len(espr))
 }
 
 func (a *app) svuota() {
