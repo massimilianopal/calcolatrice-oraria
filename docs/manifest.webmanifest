@@ -1,0 +1,15 @@
+{
+  "name": "Calcolatrice ore",
+  "short_name": "Calcolatrice ore",
+  "description": "Somma e sottrae orari: 1430, 14,30 e 14.30 diventano 14:30.",
+  "lang": "it",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f6f8",
+  "theme_color": "#2563eb",
+  "icons": [
+    { "src": "icona-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
