@@ -10,6 +10,15 @@ permissions:
   contents: write
 
 jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test docs/ore.test.mjs
+
   windows-exe:
     runs-on: ubuntu-latest
     steps:

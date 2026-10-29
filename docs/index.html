@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calcolatrice ore</title>
+<meta name="description" content="Somma e sottrae orari: 1430, 14,30 e 14.30 diventano 14:30.">
+<meta name="theme-color" content="#2563eb">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="icona-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  :root {
+    --sfondo: #f5f6f8; --pannello: #ffffff; --testo: #1a1a1a; --tenue: #6e6e6e;
+    --bordo: #d5d8dd; --accento: #2563eb; --su-accento: #ffffff; --errore: #c81e1e; --riga: #eef2fb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --sfondo: #17181b; --pannello: #222327; --testo: #ececec; --tenue: #9a9a9a;
+      --bordo: #3a3c42; --accento: #6b9bff; --su-accento: #0b1220; --errore: #ff6b6b; --riga: #2b3346;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--sfondo); color: var(--testo);
+    font: 16px/1.4 "Segoe UI", system-ui, -apple-system, sans-serif;
+    display: flex; justify-content: center; padding: 16px;
+  }
+  main {
+    width: 100%; max-width: 920px; display: grid; gap: 16px;
+    grid-template-columns: 5fr 4fr; align-items: start;
+  }
+  section {
+    background: var(--pannello); border: 1px solid var(--bordo); border-radius: 10px;
+    padding: 16px; min-width: 0;
+  }
+  label, h2 { display: block; margin: 0 0 6px; font-size: 15px; font-weight: 600; }
+  #calcolo {
+    width: 100%; font: inherit; font-size: 28px; padding: 8px 10px;
+    border: 1px solid var(--bordo); border-radius: 6px; background: var(--pannello); color: var(--testo);
+  }
+  #calcolo:focus { outline: 2px solid var(--accento); outline-offset: -1px; }
+  #calcolo.errore, .errore { color: var(--errore); }
+  .tenue { color: var(--tenue); font-size: 14px; min-height: 1.4em; margin: 4px 0 0; }
+  #risultato { font-size: 48px; font-weight: 700; margin: 12px 0 0; font-variant-numeric: tabular-nums; }
+  .tasti { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  button {
+    font: inherit; font-size: 15px; padding: 7px 14px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--bordo); background: var(--sfondo); color: var(--testo);
+  }
+  button:hover { border-color: var(--accento); }
+  button.primario { background: var(--accento); border-color: var(--accento); color: var(--su-accento); }
+  .aiuto { color: var(--tenue); font-size: 13px; margin: 18px 0 0; }
+  .aiuto p { margin: 2px 0; }
+  #storico {
+    list-style: none; margin: 0 0 10px; padding: 0; height: 320px; overflow-y: auto;
+    border: 1px solid var(--bordo); border-radius: 6px;
+    font: 14px/1.5 Consolas, "Cascadia Mono", ui-monospace, monospace;
+  }
+  #storico li { padding: 3px 8px; cursor: default; user-select: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #storico li:hover, #storico li:focus { background: var(--riga); outline: none; }
+  #storico .vuoto { color: var(--tenue); font-family: inherit; }
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; }
+    #storico { height: 240px; }
+    #risultato { font-size: 40px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <section>
+    <label for="calcolo">Calcolo:</label>
+    <input id="calcolo" autocomplete="off" autocapitalize="off" spellcheck="false" autofocus
+           placeholder="es. 1430 - 830">
+    <p id="anteprima" class="tenue">&nbsp;</p>
+    <p id="risultato">0:00</p>
+    <p id="orologio" class="tenue">&nbsp;</p>
+    <div class="tasti">
+      <button id="calcola" class="primario">Calcola (Invio)</button>
+      <button id="copia">Copia risultato</button>
+      <button id="azzera">Azzera (Esc)</button>
+    </div>
+    <div class="aiuto">
+      <p>Esempi: 8:30 + 9 · 1430 - 830 · 14,30 + 1.15</p>
+      <p>9 = 9 ore · :45 o 45m = 45 minuti · ogni orario va da 0:00 a 24:00</p>
+      <p>Invio = calcola · Esc = azzera · doppio clic sullo storico = riprendi il calcolo</p>
+    </div>
+  </section>
+  <section>
+    <h2>Storico:</h2>
+    <ul id="storico" aria-label="Storico dei calcoli"></ul>
+    <button id="svuota">Svuota storico</button>
+  </section>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>

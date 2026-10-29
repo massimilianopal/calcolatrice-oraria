@@ -2,7 +2,10 @@
 
 Piccola app per Windows che somma e sottrae orari. Un solo file `CalcolatriceOre.exe`, nessuna installazione.
 
-**Scaricare:** apri la pagina [Releases](../../releases), scarica `CalcolatriceOre.zip`, estrai e avvia `CalcolatriceOre.exe`.
+**Versione web (senza installare niente):** <https://massimilianopal.github.io/calcolatrice-oraria/>
+Utile dove l'antivirus blocca l'exe. Funziona anche offline e con Chrome o Edge si può installare come app (icona "Installa" nella barra degli indirizzi). Lo storico resta nel browser di quel computer.
+
+**Scaricare l'app Windows:** apri la pagina [Releases](../../releases), scarica `CalcolatriceOre.zip`, estrai e avvia `CalcolatriceOre.exe`.
 
 ## Come si scrive
 
@@ -24,11 +27,13 @@ Ogni orario deve stare fra 0:00 e 24:00. Il risultato invece può superare le 24
 - Ogni calcolo parte da zero: `+3` vale semplicemente 3:00.
 - Dopo il calcolo il testo resta selezionato: scrivi subito il prossimo.
 - Doppio clic su una riga dello storico rimette quel calcolo nel campo (es. `18:00 + 3:00`).
-- Lo storico è salvato in `%APPDATA%\CalcolatriceOre\storico.txt`.
+- Lo storico è salvato in `%APPDATA%\CalcolatriceOre\storico.txt` (app Windows) o nel browser (versione web).
 
 ## Sviluppo
 
 Scritta in Go con [walk](https://github.com/lxn/walk) (interfaccia nativa Windows). Si compila anche da Linux o macOS: serve Go, poi `./build.sh`.
 La logica (lettura degli orari e calcoli) è in `ore/`, con i test: `go test ./ore`.
+
+La versione web è in `docs/`: HTML e JavaScript senza passaggi di build, pubblicata da GitHub Pages (Settings → Pages → Deploy from a branch → `main`, cartella `/docs`). La logica è in `docs/ore.js`, copia di `ore/ore.go`: se ne cambi una, cambia anche l'altra. Test: `node --test docs/ore.test.mjs`. Per provarla in locale: `python3 -m http.server --directory docs`.
 
 Ad ogni push GitHub Actions compila l'exe; creando un tag `vX.Y.Z` lo pubblica nelle Releases.
